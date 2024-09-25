@@ -1,9 +1,58 @@
 const express = require("express");
+const { urlencoded, json } = require("body-parser");
+const path = require("path");
+const { checkEnvVars, verifySignature } = require("./actions");
 
 const app = express();
 
+// Parse application/x-www-form-urlencoded
+app.use(
+  urlencoded({
+    extended: true,
+  })
+);
+
+// Parse application/json. Verify that callback came from Facebook
+app.use(json({ verify: verifySignature }));
+
+checkEnvVars();
+
+// simple test endpoint
 app.get("/test", function (req, res) {
-  res.status(200).send({ msg: "ciao" });
+  res.status(200).send({ msg: "Hi :)" });
 });
 
-app.listen(3000, () => console.log("Server ready on port 3000."));
+// Add support for GET requests to our webhook
+// test with curl -X GET "localhost:3000/messaging-webhook?hub.verify_token=FreeflyYourMind&hub.challenge=CHALLENGE_ACCEPTED&hub.mode=subscribe"
+app.get("/messaging-webhook", (req, res) => {
+  // Parse the query params
+  let mode = req.query["hub.mode"];
+  let token = req.query["hub.verify_token"];
+  let challenge = req.query["hub.challenge"];
+
+  // Check if a token and mode is in the query string of the request
+  if (mode && token) {
+    // Check the mode and token sent is correct
+    if (mode === "subscribe" && token === process.env.VERIFY_TOKEN) {
+      // Respond with the challenge token from the request
+      console.log("WEBHOOK_VERIFIED");
+      res.status(200).send(challenge);
+    } else {
+      // Respond with '403 Forbidden' if verify tokens do not match
+      res.sendStatus(403);
+    }
+  } else {
+    console.log("missong 'mode' and 'token'");
+    res.sendStatus(403);
+  }
+});
+
+// start the server
+const listener = app.listen(3000, () => {
+  console.log(`The app is listening on port ${listener.address().port}`);
+
+  if (process.env.PAGE_ID) {
+    console.log("Test your app by messaging:");
+    console.log(`https://m.me/${process.env.PAGE_ID}`);
+  }
+});
