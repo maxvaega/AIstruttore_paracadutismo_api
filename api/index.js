@@ -45,7 +45,7 @@ app.get("/messaging-webhook", (req, res) => {
       res.sendStatus(403);
     }
   } else {
-    console.log("missong 'mode' and 'token'");
+    console.log("missing 'mode' and 'token'");
     res.sendStatus(403);
   }
 });
