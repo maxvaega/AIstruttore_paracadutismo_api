@@ -9,7 +9,7 @@ function verifyRequestSignature(req, res, buf) {
     var elements = signature.split("=");
     var signatureHash = elements[1];
     var expectedHash = crypto
-      .createHmac("sha1", config.appSecret)
+      .createHmac("sha1", process.env.APP_SECRET)
       .update(buf)
       .digest("hex");
     if (signatureHash != expectedHash) {

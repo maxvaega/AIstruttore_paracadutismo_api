@@ -1,7 +1,10 @@
+require("dotenv").config();
+
 const express = require("express");
 const { urlencoded, json } = require("body-parser");
 const path = require("path");
 const { checkEnvVars, verifySignature } = require("./actions");
+const axios = require("axios");
 
 const app = express();
 
@@ -47,6 +50,76 @@ app.get("/messaging-webhook", (req, res) => {
   }
 });
 
+app.post("/messaging-webhook", (req, res) => {
+  let body = req.body;
+  console.log(`\u{1F7EA} Received webhook:`);
+
+  res.status(200).send("EVENT_RECEIVED");
+
+  if (body.object === "instagram") {
+    body.entry.forEach(async function (entry) {
+      entry.messaging.forEach(async function (webhookEvent) {
+        // Discard uninteresting events
+        if ("read" in webhookEvent) {
+          console.log("Got a read event");
+          return;
+        } else if ("delivery" in webhookEvent) {
+          console.log("Got a delivery event");
+          return;
+        } else if (webhookEvent.message && webhookEvent.message.is_echo) {
+          console.log(
+            "Got an echo of our send, mid = " + webhookEvent.message.mid
+          );
+          return;
+        } else if (webhookEvent.message && webhookEvent.message.is_deleted) {
+          console.log("Got a deleted messag");
+          return;
+        }
+        if (!webhookEvent.message) {
+          console.log("Cannot find message");
+          return;
+        }
+
+        if (!webhookEvent.message.text) {
+          console.log("cannot process not textual message");
+          return;
+        }
+
+        console.log("now I can analize event");
+        console.dir(entry, { depth: null });
+
+        // Get the sender PSID
+        let senderPsid = webhookEvent.sender.id;
+        if (!!senderPsid) {
+          console.log("need t process :)");
+          const msg = webhookEvent.message.text;
+
+          axios
+            .post(
+              `https://graph.facebook.com/v20.0/${process.env.PAGE_ID}/messages`,
+              {
+                recipient: {
+                  id: senderPsid,
+                },
+                messaging_type: "RESPONSE",
+                message: {
+                  text: msg,
+                },
+                access_token: process.env.ACCESS_TOKEN,
+              }
+            )
+            .then(function (response) {
+              console.log("SENDED PONG => OK :)");
+            })
+            .catch(function (error) {
+              console.error("SENDED PON => KO ;(");
+            });
+        }
+      });
+    });
+  }
+});
+
 // start the server
 const listener = app.listen(3000, () => {
   console.log(`The app is listening on port ${listener.address().port}`);
@@ -56,3 +129,10 @@ const listener = app.listen(3000, () => {
     console.log(`https://m.me/${process.env.PAGE_ID}`);
   }
 });
+
+/*
+curl -X POST "https://graph.facebook.com/v20.0/451345468056204/messages" \
+      -d "recipient={'id':'1063423088051438'}" \
+      -d "sender_action=typing_on" \
+      -d "access_token=EAAHGWpWgOxMBOythUVUrkV7RoBLH0wfsVrSJNqY4lAROVjWKZBmpNxMqJGxTEveuaT3UOI6D8dc9L83TtlfjrlpxY5V2vkPdc0kzhZCGNtZBfhpMBwgsR3rfVmhSxYbfi9hiSZCXUJWu9exg2quj2CIgIg6TZAiS1IZAUtEsuXTTQZC6Llhe3DqC9JuxjHXUqgZD"
+*/
