@@ -113,6 +113,7 @@ app.post("/messaging-webhook", (req, res) => {
             })
             .catch(function (error) {
               console.error("SENDED PON => KO ;(");
+              console.error(error);
             });
         }
       });
