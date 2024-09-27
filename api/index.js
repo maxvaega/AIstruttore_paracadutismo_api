@@ -108,6 +108,7 @@ app.post("/messaging-webhook", async (req, res) => {
         let senderPsid = webhookEvent.sender.id;
         if (!!senderPsid) {
           console.log("now I can analize event for psid", senderPsid);
+          const msg = webhookEvent.message.text;
 
           axios
             .post(
