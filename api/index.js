@@ -94,11 +94,15 @@ app.post("/messaging-webhook", (req, res) => {
           console.log("need t process :)");
           const msg = webhookEvent.message.text;
 
-          axios
-            .get("https://jsonplaceholder.typicode.com/todos/1")
-            .then((res) => {
-              console.log("todo are", res.data);
-            });
+          try {
+            const res = await axios.get(
+              "https://jsonplaceholder.typicode.com/todos/1"
+            );
+            console.log("todos are", res.data);
+          } catch (e) {
+            console.error(err);
+          }
+
           // axios
           //   .post(
           //     `https://graph.facebook.com/v20.0/${process.env.PAGE_ID}/messages`,
