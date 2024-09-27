@@ -52,30 +52,30 @@ app.get("/messaging-webhook", (req, res) => {
   }
 });
 
+// app.post("/_messaging-webhook", (req, res) => {
+//   console.log("received webook");
+
+//   axios
+//     .get("https://jsonplaceholder.typicode.com/todos/1")
+//     .then(() => {
+//       console.log("resposnse finalmente");
+//       res.status(200).send("EVENT_RECEIVED");
+//     })
+//     .catch((err) => {
+//       console.log("error");
+//       res.status(200).send("EVENT_RECEIVED");
+//     });
+// });
+
 app.post("/messaging-webhook", (req, res) => {
-  console.log("received webook");
-
-  axios
-    .get("https://jsonplaceholder.typicode.com/todos/1")
-    .then(() => {
-      console.log("resposnse finalmente");
-      res.status(200).send("EVENT_RECEIVED");
-    })
-    .catch((err) => {
-      console.log("error");
-      res.status(200).send("EVENT_RECEIVED");
-    });
-});
-
-app.post("/_messaging-webhook", (req, res) => {
   let body = req.body;
-  console.log(`\u{1F7EA} Received webhook:`);
-
-  res.status(200).send("EVENT_RECEIVED");
+  console.log(`## Received webhook:`);
 
   if (body.object === "instagram") {
+    res.status(200).send("EVENT_RECEIVED");
+
     body.entry.forEach(async function (entry) {
-      entry.messaging.forEach(function (webhookEvent) {
+      entry.messaging.forEach(async function (webhookEvent) {
         // Discard uninteresting events
         if ("read" in webhookEvent) {
           console.log("Got a read event");
@@ -125,7 +125,7 @@ app.post("/_messaging-webhook", (req, res) => {
             console.log("resposnse finalmente");
           });
           console.log("after axios");
-
+          return;
           // try {
           //   const res = await axios.get(
           //     "https://jsonplaceholder.typicode.com/todos/1"
@@ -161,6 +161,8 @@ app.post("/_messaging-webhook", (req, res) => {
         }
       });
     });
+  } else {
+    res.sendStatus(404);
   }
 });
 

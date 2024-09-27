@@ -44,8 +44,16 @@ app.get("/messaging-webhook", (req, res) => {
   }
 });
 
-// Create the endpoint for your webhook
 app.post("/webhook", (req, res) => {
+  console.log("received webook");
+  res.status(200).send("EVENT_RECEIVED");
+
+  console.log("1");
+  axios.f;
+});
+
+// Create the endpoint for your webhook
+app.post("/_webhook", (req, res) => {
   let body = req.body;
 
   console.log(`\u{1F7EA} Received webhook:`);
