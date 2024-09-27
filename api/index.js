@@ -5,8 +5,9 @@ const { urlencoded, json } = require("body-parser");
 const path = require("path");
 const { checkEnvVars, verifySignature } = require("./actions");
 const axios = require("axios");
-const fetch = require("node-fetch");
+const fetch = require("node-fetch-commonjs");
 
+console.log("fetch");
 const app = express();
 
 // Parse application/x-www-form-urlencoded
