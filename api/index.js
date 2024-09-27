@@ -67,12 +67,24 @@ app.get("/messaging-webhook", (req, res) => {
 //     });
 // });
 
-app.post("/messaging-webhook", (req, res) => {
+app.post("/messaging-webhook", async (req, res) => {
   let body = req.body;
   console.log(`## Received webhook:`);
 
   if (body.object === "instagram") {
     res.status(200).send("EVENT_RECEIVED");
+
+    try {
+      console.log("before axios id");
+      const res = await axios.get(
+        "https://jsonplaceholder.typicode.com/todos/1"
+      );
+      console.log("abbiamo i todo:", res.data);
+    } catch (e) {
+      console.log("after axios id");
+    }
+
+    return;
 
     body.entry.forEach(async function (entry) {
       entry.messaging.forEach(async function (webhookEvent) {
@@ -122,17 +134,17 @@ app.post("/messaging-webhook", (req, res) => {
           // // a caso
           const id = crypto.randomBytes(5).toString("hex");
 
-          try {
-            console.log("before axios id", id);
-            const res = await axios.get(
-              "https://jsonplaceholder.typicode.com/todos/1"
-            );
-            console.log("abbiamo i todo:", res.data);
-          } catch (e) {
-            console.log("after axios id", id);
-          }
+          // try {
+          //   console.log("before axios id", id);
+          //   const res = await axios.get(
+          //     "https://jsonplaceholder.typicode.com/todos/1"
+          //   );
+          //   console.log("abbiamo i todo:", res.data);
+          // } catch (e) {
+          //   console.log("after axios id", id);
+          // }
 
-          return;
+          // return;
           // try {
           //   const res = await axios.get(
           //     "https://jsonplaceholder.typicode.com/todos/1"
