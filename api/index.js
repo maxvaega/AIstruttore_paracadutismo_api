@@ -85,24 +85,23 @@ app.post("/messaging-webhook", (req, res) => {
           return;
         }
 
-        console.log("now I can analize event");
-        console.dir(entry, { depth: null });
-        console.log("### 1");
+        // console.dir(entry, { depth: null });
+
         // Get the sender PSID
         let senderPsid = webhookEvent.sender.id;
-        console.log("### 2", senderPsid);
         if (!!senderPsid) {
-          console.log("need t process :)");
-          const msg = webhookEvent.message.text;
-          // a caso
-          try {
-            const res = await axios.get(
-              "https://jsonplaceholder.typicode.com/todos/1"
-            );
-            console.log("todos are", res.data);
-          } catch (e) {
-            console.error(err);
-          }
+          console.log("now I can analize event for psid", senderPsid);
+
+          // const msg = webhookEvent.message.text;
+          // // a caso
+          // try {
+          //   const res = await axios.get(
+          //     "https://jsonplaceholder.typicode.com/todos/1"
+          //   );
+          //   console.log("todos are", res.data);
+          // } catch (e) {
+          //   console.error(err);
+          // }
 
           // axios
           //   .post(
