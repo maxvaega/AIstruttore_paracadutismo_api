@@ -95,26 +95,31 @@ app.post("/messaging-webhook", (req, res) => {
           const msg = webhookEvent.message.text;
 
           axios
-            .post(
-              `https://graph.facebook.com/v20.0/${process.env.PAGE_ID}/messages`,
-              {
-                recipient: {
-                  id: senderPsid,
-                },
-                messaging_type: "RESPONSE",
-                message: {
-                  text: msg,
-                },
-                access_token: process.env.ACCESS_TOKEN,
-              }
-            )
-            .then(function (response) {
-              console.log("SENDED PONG => OK :)");
-            })
-            .catch(function (error) {
-              console.error("SENDED PON => KO ;(");
-              console.error(error);
+            .get("https://jsonplaceholder.typicode.com/todos/1")
+            .then((res) => {
+              console.log("todo are", res.data);
             });
+          // axios
+          //   .post(
+          //     `https://graph.facebook.com/v20.0/${process.env.PAGE_ID}/messages`,
+          //     {
+          //       recipient: {
+          //         id: senderPsid,
+          //       },
+          //       messaging_type: "RESPONSE",
+          //       message: {
+          //         text: msg,
+          //       },
+          //       access_token: process.env.ACCESS_TOKEN,
+          //     }
+          //   )
+          //   .then(function (response) {
+          //     console.log("SENDED PONG => OK :)");
+          //   })
+          //   .catch(function (error) {
+          //     console.error("SENDED PON => KO ;(");
+          //     console.error(error);
+          //   });
         }
       });
     });
