@@ -6,8 +6,8 @@ const path = require("path");
 const { checkEnvVars, verifySignature } = require("./actions");
 const axios = require("axios");
 const fetch = require("node-fetch-commonjs");
+const fs = require("node:fs/promises");
 
-console.log("fetch");
 const app = express();
 
 // Parse application/x-www-form-urlencoded
@@ -23,7 +23,7 @@ app.use(json({ verify: verifySignature }));
 checkEnvVars();
 
 // simple test endpoint
-app.get("/test", function (req, res) {
+app.get("/test", async function (req, res) {
   res.status(200).send({ msg: "Hi :)" });
 });
 
@@ -95,12 +95,12 @@ app.post("/messaging-webhook", (req, res) => {
           console.log("now I can analize event for psid", senderPsid);
 
           try {
-            const response = await fetch("https://api.github.com/users/github");
-            const data = await response.json();
-            console.log(data);
-          } catch (e) {
-            console.error("there was an fucking error");
-            console.error(e);
+            const data = await fs.readFile("api/file.json", {
+              encoding: "utf8",
+            });
+            console.log("file content is", data);
+          } catch (err) {
+            console.log(err);
           }
 
           // const msg = webhookEvent.message.text;
