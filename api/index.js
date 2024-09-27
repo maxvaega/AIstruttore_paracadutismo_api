@@ -53,6 +53,20 @@ app.get("/messaging-webhook", (req, res) => {
 });
 
 app.post("/messaging-webhook", (req, res) => {
+  console.log("received webook");
+  res.status(200).send("EVENT_RECEIVED");
+
+  axios
+    .get("https://jsonplaceholder.typicode.com/todos/1")
+    .then(() => {
+      console.log("resposnse finalmente");
+    })
+    .catch((err) => {
+      console.log("error");
+    });
+});
+
+app.post("/_messaging-webhook", (req, res) => {
   let body = req.body;
   console.log(`\u{1F7EA} Received webhook:`);
 
