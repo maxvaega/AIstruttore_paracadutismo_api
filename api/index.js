@@ -74,18 +74,6 @@ app.post("/messaging-webhook", async (req, res) => {
   if (body.object === "instagram") {
     res.status(200).send("EVENT_RECEIVED");
 
-    try {
-      console.log("before axios id");
-      const res = await axios.get(
-        "https://jsonplaceholder.typicode.com/todos/1"
-      );
-      console.log("abbiamo i todo:", res.data);
-    } catch (e) {
-      console.log("after axios id");
-    }
-
-    return;
-
     body.entry.forEach(async function (entry) {
       entry.messaging.forEach(async function (webhookEvent) {
         // Discard uninteresting events
@@ -114,67 +102,34 @@ app.post("/messaging-webhook", async (req, res) => {
           return;
         }
 
-        // console.dir(entry, { depth: null });
+        console.dir(entry, { depth: null });
 
         // Get the sender PSID
         let senderPsid = webhookEvent.sender.id;
         if (!!senderPsid) {
           console.log("now I can analize event for psid", senderPsid);
 
-          // try {
-          //   const data = await fs.readFile("api/file.json", {
-          //     encoding: "utf8",
-          //   });
-          //   console.log("file content is", data);
-          // } catch (err) {
-          //   console.log(err);
-          // }
-
-          // const msg = webhookEvent.message.text;
-          // // a caso
-          const id = crypto.randomBytes(5).toString("hex");
-
-          // try {
-          //   console.log("before axios id", id);
-          //   const res = await axios.get(
-          //     "https://jsonplaceholder.typicode.com/todos/1"
-          //   );
-          //   console.log("abbiamo i todo:", res.data);
-          // } catch (e) {
-          //   console.log("after axios id", id);
-          // }
-
-          // return;
-          // try {
-          //   const res = await axios.get(
-          //     "https://jsonplaceholder.typicode.com/todos/1"
-          //   );
-          //   console.log("todos are", res.data);
-          // } catch (e) {
-          //   console.error(err);
-          // }
-
-          // axios
-          //   .post(
-          //     `https://graph.facebook.com/v20.0/${process.env.PAGE_ID}/messages`,
-          //     {
-          //       recipient: {
-          //         id: senderPsid,
-          //       },
-          //       messaging_type: "RESPONSE",
-          //       message: {
-          //         text: msg,
-          //       },
-          //       access_token: process.env.ACCESS_TOKEN,
-          //     }
-          //   )
-          //   .then(function (response) {
-          //     console.log("SENDED PONG => OK :)");
-          //   })
-          //   .catch(function (error) {
-          //     console.error("SENDED PON => KO ;(");
-          //     console.error(error);
-          //   });
+          axios
+            .post(
+              `https://graph.facebook.com/v20.0/${process.env.PAGE_ID}/messages`,
+              {
+                recipient: {
+                  id: senderPsid,
+                },
+                messaging_type: "RESPONSE",
+                message: {
+                  text: msg,
+                },
+                access_token: process.env.ACCESS_TOKEN,
+              }
+            )
+            .then(function (response) {
+              console.log("SENDED PONG => OK :)");
+            })
+            .catch(function (error) {
+              console.error("SENDED PON => KO ;(");
+              console.error(error);
+            });
         } else {
           console.log("### NOT FOUND PSID");
         }
