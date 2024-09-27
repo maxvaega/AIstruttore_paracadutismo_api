@@ -60,7 +60,7 @@ app.post("/messaging-webhook", (req, res) => {
 
   if (body.object === "instagram") {
     body.entry.forEach(async function (entry) {
-      entry.messaging.forEach(async function (webhookEvent) {
+      entry.messaging.forEach(function (webhookEvent) {
         // Discard uninteresting events
         if ("read" in webhookEvent) {
           console.log("Got a read event");
@@ -94,17 +94,23 @@ app.post("/messaging-webhook", (req, res) => {
         if (!!senderPsid) {
           console.log("now I can analize event for psid", senderPsid);
 
-          try {
-            const data = await fs.readFile("api/file.json", {
-              encoding: "utf8",
-            });
-            console.log("file content is", data);
-          } catch (err) {
-            console.log(err);
-          }
+          // try {
+          //   const data = await fs.readFile("api/file.json", {
+          //     encoding: "utf8",
+          //   });
+          //   console.log("file content is", data);
+          // } catch (err) {
+          //   console.log(err);
+          // }
 
           // const msg = webhookEvent.message.text;
           // // a caso
+          console.log("before axio");
+          axios.get("https://jsonplaceholder.typicode.com/todos/1").then(() => {
+            console.log("resposnse finalmente");
+          });
+          console.log("after axios");
+
           // try {
           //   const res = await axios.get(
           //     "https://jsonplaceholder.typicode.com/todos/1"
