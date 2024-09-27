@@ -7,7 +7,7 @@ const { checkEnvVars, verifySignature } = require("./actions");
 const axios = require("axios");
 const fetch = require("node-fetch-commonjs");
 const fs = require("node:fs/promises");
-
+const crypto = require("crypto");
 const app = express();
 
 // Parse application/x-www-form-urlencoded
@@ -120,11 +120,18 @@ app.post("/messaging-webhook", (req, res) => {
 
           // const msg = webhookEvent.message.text;
           // // a caso
-          console.log("before axio");
-          axios.get("https://jsonplaceholder.typicode.com/todos/1").then(() => {
-            console.log("resposnse finalmente");
-          });
-          console.log("after axios");
+          const id = crypto.randomBytes(5).toString("hex");
+
+          try {
+            console.log("before axios id", id);
+            const res = await axios.get(
+              "https://jsonplaceholder.typicode.com/todos/1"
+            );
+            console.log("abbiamo i todo:", res.data);
+          } catch (e) {
+            console.log("after axios id", id);
+          }
+
           return;
           // try {
           //   const res = await axios.get(
