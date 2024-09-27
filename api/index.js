@@ -33,7 +33,6 @@ app.get("/messaging-webhook", (req, res) => {
   let token = req.query["hub.verify_token"];
   let challenge = req.query["hub.challenge"];
 
-  console.log("xxxx mode", mode, "token", token, "challange", challenge);
   // Check if a token and mode is in the query string of the request
   if (mode && token) {
     // Check the mode and token sent is correct
@@ -88,9 +87,10 @@ app.post("/messaging-webhook", (req, res) => {
 
         console.log("now I can analize event");
         console.dir(entry, { depth: null });
-
+        console.log("### 1");
         // Get the sender PSID
         let senderPsid = webhookEvent.sender.id;
+        console.log("### 2", senderPsid);
         if (!!senderPsid) {
           console.log("need t process :)");
           const msg = webhookEvent.message.text;
@@ -125,6 +125,8 @@ app.post("/messaging-webhook", (req, res) => {
           //     console.error("SENDED PON => KO ;(");
           //     console.error(error);
           //   });
+        } else {
+          console.log("### NOT FOUND PSID");
         }
       });
     });
