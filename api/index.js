@@ -5,6 +5,7 @@ const { urlencoded, json } = require("body-parser");
 const path = require("path");
 const { checkEnvVars, verifySignature } = require("./actions");
 const axios = require("axios");
+const fetch = require("node-fetch");
 
 const app = express();
 
@@ -91,6 +92,15 @@ app.post("/messaging-webhook", (req, res) => {
         let senderPsid = webhookEvent.sender.id;
         if (!!senderPsid) {
           console.log("now I can analize event for psid", senderPsid);
+
+          try {
+            const response = await fetch("https://api.github.com/users/github");
+            const data = await response.json();
+            console.log(data);
+          } catch (e) {
+            console.error("there was an fucking error");
+            console.error(e);
+          }
 
           // const msg = webhookEvent.message.text;
           // // a caso
