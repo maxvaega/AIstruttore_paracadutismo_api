@@ -142,10 +142,3 @@ const listener = app.listen(3000, () => {
     console.log(`https://m.me/${process.env.PAGE_ID}`);
   }
 });
-
-/*
-curl -X POST "https://graph.facebook.com/v20.0/451345468056204/messages" \
-      -d "recipient={'id':'1063423088051438'}" \
-      -d "sender_action=typing_on" \
-      -d "access_token=EAAHGWpWgOxMBOythUVUrkV7RoBLH0wfsVrSJNqY4lAROVjWKZBmpNxMqJGxTEveuaT3UOI6D8dc9L83TtlfjrlpxY5V2vkPdc0kzhZCGNtZBfhpMBwgsR3rfVmhSxYbfi9hiSZCXUJWu9exg2quj2CIgIg6TZAiS1IZAUtEsuXTTQZC6Llhe3DqC9JuxjHXUqgZD"
-*/
