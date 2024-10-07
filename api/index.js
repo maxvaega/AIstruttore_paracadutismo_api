@@ -22,11 +22,6 @@ app.use(json({ verify: verifySignature }));
 
 checkEnvVars();
 
-// simple test endpoint
-app.get("/test", async function (req, res) {
-  res.status(200).send({ msg: "Hi :)" });
-});
-
 // Add support for GET requests to our webhook
 // test with curl -X GET "localhost:3000/messaging-webhook?hub.verify_token=FreeflyYourMind&hub.challenge=CHALLENGE_ACCEPTED&hub.mode=subscribe"
 app.get("/messaging-webhook", (req, res) => {
