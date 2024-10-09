@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   }
 }
 
-function handleIstagramObj(body: any) {
+async function handleIstagramObj(body: any) {
   const promises: Array<() => Promise<unknown>> = [];
 
   body.entry.forEach(function (entry) {
@@ -71,12 +71,9 @@ function handleIstagramObj(body: any) {
         return;
       }
 
-      // console.dir(entry, { depth: null });
       let senderPsid = webhookEvent.sender.id;
       if (!!senderPsid) {
         const msg = webhookEvent.message.text;
-        console.log("#### handle from", senderPsid, "mesh:", msg);
-
         promises.push(() => sendMessageToUser(senderPsid, msg));
       } else {
         console.log("### NOT FOUND PSID");
@@ -84,7 +81,7 @@ function handleIstagramObj(body: any) {
     });
   });
 
-  return Promise.all(promises.map((p) => p()));
+  await Promise.all(promises.map((p) => p()));
 }
 
 async function verifyRequestSignature(_: Request) {
