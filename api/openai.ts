@@ -26,6 +26,9 @@ export class AssistantClient {
   private run() {
     return this.client.beta.threads.runs.create(this.threadId, {
       assistant_id: this.assistantId,
+      tool_choice: {
+        type: "file_search",
+      },
     });
   }
 
@@ -51,7 +54,11 @@ export class AssistantClient {
       );
     }
 
-    console.log("after cycle on response status is", response.status);
+    console.log(
+      "after cycle on response status is",
+      response.status,
+      response.last_error
+    );
     switch (response.status) {
       case "cancelled":
         break;
