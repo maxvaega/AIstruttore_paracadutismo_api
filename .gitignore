@@ -132,3 +132,6 @@ dist
 
 # vercel things
 .vercel
+
+# curlate can have sensitive data
+curlate.txt

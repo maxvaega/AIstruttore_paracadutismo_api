@@ -1,7 +1,6 @@
 import { waitUntil } from "@vercel/functions";
 import type { VercelRequest } from "@vercel/node";
-import axios from "axios";
-import crypto from "node:crypto";
+import { sendMessageToUser } from "./api.js";
 
 // FB will call http://localhost:3000/api/messaging-webhook?hub.mode=subscribe&hub.challenge=123&hub.verify_token=abc
 export async function GET(request: VercelRequest) {
@@ -76,23 +75,9 @@ function handleIstagramObj(body: any) {
       let senderPsid = webhookEvent.sender.id;
       if (!!senderPsid) {
         const msg = webhookEvent.message.text;
-        console.log("handle from", senderPsid, "mesh:", msg);
+        console.log("#### handle from", senderPsid, "mesh:", msg);
 
-        promises.push(() =>
-          axios.post(
-            `https://graph.facebook.com/v20.0/${process.env.PAGE_ID}/messages`,
-            {
-              recipient: {
-                id: senderPsid,
-              },
-              messaging_type: "RESPONSE",
-              message: {
-                text: msg,
-              },
-              access_token: process.env.ACCESS_TOKEN,
-            }
-          )
-        );
+        promises.push(() => sendMessageToUser(senderPsid, msg));
       } else {
         console.log("### NOT FOUND PSID");
       }
@@ -102,7 +87,7 @@ function handleIstagramObj(body: any) {
   return Promise.all(promises.map((p) => p()));
 }
 
-async function verifyRequestSignature(req: Request) {
+async function verifyRequestSignature(_: Request) {
   return true;
   // todo
   //   var signature = req.headers.get("x-hub-signature");

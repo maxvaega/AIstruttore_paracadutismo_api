@@ -1,5 +1,5 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { VercelRequest } from "@vercel/node";
 
-export async function GET(request: VercelRequest) {
+export async function GET(_: VercelRequest) {
   return new Response(`Hi ${Math.random()}`);
 }
