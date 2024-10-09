@@ -3,19 +3,28 @@ import type { VercelRequest } from "@vercel/node";
 import axios from "axios";
 
 export async function GET(request: VercelRequest) {
+  const idDiego = "1063423088051438";
+  const idMax = "1591457695102340";
+  const idBot = "17841469430276251";
+
   const { searchParams } = new URL(request.url as string);
   const msg =
     searchParams.get("msg") ||
     "please add ?msg=qualcosa&to=diego|max in the url";
-  const toPerson = searchParams.get("to") || "diego";
+  const toPerson = searchParams.get("to");
+
+  if (!["diego", "max"].includes(toPerson)) {
+    return new Response(`?to need to be one of [diego,max]`, {
+      status: 400,
+    });
+  }
+
   let toId = "";
-  const psIdDiego = "1063423088051438";
+
   if (toPerson === "diego") {
-    toId = psIdDiego;
+    toId = idDiego;
   } else if (toPerson === "max") {
-    toId = "1591457695102340";
-  } else {
-    toId = psIdDiego;
+    toId = idMax;
   }
 
   const endpoint = "/api/messaging-webhook";
@@ -23,17 +32,16 @@ export async function GET(request: VercelRequest) {
     ? `https://${process.env.VERCEL_URL}${endpoint}`
     : `http://localhost:3000${endpoint}`;
 
-  console.log("simulate send with url:", url);
   await axios.post(url, {
     object: "instagram",
     entry: [
       {
         time: 1728404620418, // can be removed
-        id: "17841469430276251", // can be removed
+        id: idBot, // can be removed
         messaging: [
           {
             sender: { id: toId },
-            recipient: { id: "17841469430276251" },
+            recipient: { id: idBot },
             timestamp: 1728404619889, // can be removed
             message: {
               text: msg,

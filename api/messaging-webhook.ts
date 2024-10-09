@@ -1,6 +1,9 @@
 import { waitUntil } from "@vercel/functions";
 import type { VercelRequest } from "@vercel/node";
-import { sendMessageToUser } from "./api.js";
+import { fetchmessage, sendMessageToUser } from "./api.js";
+import { AssistantClient } from "./openai.js";
+
+const client = new AssistantClient();
 
 // FB will call http://localhost:3000/api/messaging-webhook?hub.mode=subscribe&hub.challenge=123&hub.verify_token=abc
 export async function GET(request: VercelRequest) {
@@ -41,7 +44,8 @@ export async function POST(request: Request) {
 }
 
 async function handleIstagramObj(body: any) {
-  const promises: Array<() => Promise<unknown>> = [];
+  const prefix = "Mi hai chiesto ";
+  let promises: Array<() => ReturnType<typeof sendMessageToUser>> = [];
 
   body.entry.forEach(function (entry) {
     entry.messaging.forEach(function (webhookEvent) {
@@ -72,14 +76,47 @@ async function handleIstagramObj(body: any) {
       }
 
       let senderPsid = webhookEvent.sender.id;
+      console.log("i received a message from", senderPsid);
       if (!!senderPsid) {
-        const msg = webhookEvent.message.text;
+        const msg = `${prefix}"${webhookEvent.message.text}"`;
         promises.push(() => sendMessageToUser(senderPsid, msg));
       } else {
         console.log("### NOT FOUND PSID");
       }
     });
   });
+
+  const resultList = await Promise.all(promises.map((p) => p()));
+  const { data } = resultList[0];
+
+  const { data: dataMessage } = await fetchmessage(data.message_id);
+  const messateText = dataMessage.message.replace(prefix, "");
+
+  const personId = dataMessage.to.data[0].id; // horrible I know
+  const threadId = "thread_HJLSrk2l1cPmRBIdfvPeNywv"; // need to change this logic
+
+  console.log(personId);
+  client.setup(threadId);
+
+  try {
+    promises = [];
+    console.log("answer at", messateText);
+    const res = await client.processMessageAndWait(messateText);
+    res.content
+      .filter((c) => c.type === "text")
+      .filter((c) => !!c.text)
+      .forEach((content) => {
+        if (content.text) {
+          // this check is usefull but typescript at build time generate error
+          promises.push(() => {
+            const textFormatted = content.text.value.substring(0, 1000); // .substring(0, 20);
+            return sendMessageToUser(personId, textFormatted);
+          });
+        }
+      });
+  } catch (e) {
+    console.error(e);
+  }
 
   await Promise.all(promises.map((p) => p()));
 }
