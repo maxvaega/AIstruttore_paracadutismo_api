@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     }
   } catch (e) {
     waitUntil(notifyError());
-    return new Response(JSON.stringify(e), { status: 400 });
+    return new Response("error generic", { status: 400 });
   }
 
   return new Response("OK", { status: 200 });
