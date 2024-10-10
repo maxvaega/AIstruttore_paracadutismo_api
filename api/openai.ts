@@ -3,7 +3,7 @@ import OpenAI from "openai";
 
 export class AssistantClient {
   private client: OpenAI;
-  private assistantId = "asst_G0ltgxAwkOCz3ylXV6OAHrgS";
+  private assistantId = process.env.OPENAI_ASSISTANT_ID;
   private threadId: string;
 
   constructor() {
@@ -16,24 +16,32 @@ export class AssistantClient {
     this.threadId = threadId;
   }
 
-  private sendMessage(content: string) {
+  public sendMessage(content: string) {
     return this.client.beta.threads.messages.create(this.threadId, {
       role: "user",
       content,
     });
   }
 
-  private run() {
+  public run() {
     return this.client.beta.threads.runs.create(this.threadId, {
       assistant_id: this.assistantId,
       tool_choice: {
         type: "file_search",
       },
+      truncation_strategy: {
+        type: "last_messages",
+        last_messages: 2,
+      },
     });
   }
 
-  private delay() {
-    return new Promise((resolve) => setTimeout(resolve, 2000));
+  public delay() {
+    return new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  public retrieveRun(runId: string) {
+    return this.client.beta.threads.runs.retrieve(this.threadId, runId);
   }
 
   private async runAndConsume() {
@@ -74,6 +82,21 @@ export class AssistantClient {
         break;
     }
 
+    const messageList = await this.client.beta.threads.messages.list(
+      this.threadId
+    );
+
+    // Find the last message for the current run
+    const lastMessage = messageList.data
+      .filter(
+        (message) => message.run_id === runId && message.role === "assistant"
+      )
+      .pop();
+
+    return lastMessage;
+  }
+
+  public async popLastMessage(runId: string) {
     const messageList = await this.client.beta.threads.messages.list(
       this.threadId
     );

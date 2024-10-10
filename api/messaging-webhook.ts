@@ -2,6 +2,8 @@ import { waitUntil } from "@vercel/functions";
 import type { VercelRequest } from "@vercel/node";
 import { fetchmessage, sendMessageToUser } from "./api.js";
 import { AssistantClient } from "./openai.js";
+import { getBaseUrl } from "./utils.js";
+import axios from "axios";
 
 const client = new AssistantClient();
 
@@ -90,35 +92,46 @@ async function handleIstagramObj(body: any) {
   const { data } = resultList[0];
 
   const { data: dataMessage } = await fetchmessage(data.message_id);
-  const messateText = dataMessage.message.replace(prefix, "");
+  const messageText = dataMessage.message.replace(prefix, "");
 
   const personId = dataMessage.to.data[0].id; // horrible I know
-  const threadId = "thread_HJLSrk2l1cPmRBIdfvPeNywv"; // need to change this logic
+  const threadId = process.env.OPENAI_THREAD_ID; // need to change this logic
 
-  console.log(personId);
   client.setup(threadId);
 
-  try {
-    promises = [];
-    console.log("answer at", messateText);
-    const res = await client.processMessageAndWait(messateText);
-    res.content
-      .filter((c) => c.type === "text")
-      .filter((c) => !!c.text)
-      .forEach((content) => {
-        if (content.text) {
-          // this check is usefull but typescript at build time generate error
-          promises.push(() => {
-            const textFormatted = content.text.value.substring(0, 1000); // .substring(0, 20);
-            return sendMessageToUser(personId, textFormatted);
-          });
-        }
-      });
-  } catch (e) {
-    console.error(e);
-  }
+  await client.sendMessage(messageText);
+  const { id: runId } = await client.run();
 
-  await Promise.all(promises.map((p) => p()));
+  const url = `${getBaseUrl()}/fetchRunRecursive`;
+  waitUntil(
+    axios.post(url, {
+      runId,
+      messageText,
+      personId,
+    })
+  );
+
+  // try {
+  //   promises = [];
+  //   console.log("answer at", messateText);
+  //   const res = await client.processMessageAndWait(messateText);
+  //   res.content
+  //     .filter((c) => c.type === "text")
+  //     .filter((c) => !!c.text)
+  //     .forEach((content) => {
+  //       if (content.text) {
+  //         // this check is usefull but typescript at build time generate error
+  //         promises.push(() => {
+  //           const textFormatted = content.text.value.substring(0, 1000); // .substring(0, 20);
+  //           return sendMessageToUser(personId, textFormatted);
+  //         });
+  //       }
+  //     });
+  // } catch (e) {
+  //   console.error(e);
+  // }
+
+  // await Promise.all(promises.map((p) => p()));
 }
 
 async function verifyRequestSignature(_: Request) {

@@ -1,36 +1,28 @@
 import "dotenv/config";
 import type { VercelRequest } from "@vercel/node";
 import axios from "axios";
+import { getBaseUrl } from "./utils.js";
 
+// example => http://localhost:3000/api/simulate-send?personId=1063423088051438&messageText=come%20si%20fa%20deriva
+// const idDiego = "1063423088051438";
+// const idMax = "1591457695102340";
 export async function GET(request: VercelRequest) {
-  const idDiego = "1063423088051438";
-  const idMax = "1591457695102340";
   const idBot = "17841469430276251";
 
   const { searchParams } = new URL(request.url as string);
-  const msg =
-    searchParams.get("msg") ||
-    "please add ?msg=qualcosa&to=diego|max in the url";
-  const toPerson = searchParams.get("to");
+  const messageText = searchParams.get("messageText");
+  const personId = searchParams.get("personId");
 
-  if (!["diego", "max"].includes(toPerson)) {
-    return new Response(`?to need to be one of [diego,max]`, {
-      status: 400,
-    });
+  if (!personId) {
+    return new Response(
+      `simulate-send => personId: ${personId}, messageText: ${messageText} `,
+      {
+        status: 401,
+      }
+    );
   }
 
-  let toId = "";
-
-  if (toPerson === "diego") {
-    toId = idDiego;
-  } else if (toPerson === "max") {
-    toId = idMax;
-  }
-
-  const endpoint = "/api/messaging-webhook";
-  const url = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}${endpoint}`
-    : `http://localhost:3000${endpoint}`;
+  const url = `${getBaseUrl()}/messaging-webhook`;
 
   await axios.post(url, {
     object: "instagram",
@@ -40,16 +32,16 @@ export async function GET(request: VercelRequest) {
         id: idBot, // can be removed
         messaging: [
           {
-            sender: { id: toId },
+            sender: { id: personId },
             recipient: { id: idBot },
             timestamp: 1728404619889, // can be removed
             message: {
-              text: msg,
+              text: messageText,
             },
           },
         ],
       },
     ],
   });
-  return new Response(`send: ${msg}`);
+  return new Response(`send: ${messageText}`);
 }
