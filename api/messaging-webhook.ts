@@ -4,6 +4,8 @@ import { fetchmessage, sendMessageToUser } from "./api.js";
 import { AssistantClient } from "./openai.js";
 import { getBaseUrl } from "./utils.js";
 import axios from "axios";
+import { kv } from "@vercel/kv";
+import { PersonInfoDb } from "./types.js";
 
 const client = new AssistantClient();
 
@@ -93,21 +95,40 @@ async function handleIstagramObj(body: any) {
 
   const { data: dataMessage } = await fetchmessage(data.message_id);
   const messageText = dataMessage.message.replace(prefix, "");
-
   const personId = dataMessage.to.data[0].id; // horrible I know
-  const threadId = process.env.OPENAI_THREAD_ID; // need to change this logic
+
+  let threadId = "";
+  console.log(new Date().toUTCString());
+  const personInfo = await kv.get<PersonInfoDb>(personId);
+  if (!!personInfo) {
+    threadId = personInfo.thread_id;
+    console.log("### trovato", threadId);
+  } else {
+    const { id } = await client.createThread();
+    threadId = id;
+    console.log("### non trovato quindi creato", id);
+  }
+
+  // update record
+  await kv.set<PersonInfoDb>(personId, {
+    thread_id: threadId,
+    updated_at: new Date().toUTCString(),
+  });
 
   client.setup(threadId);
-
+  console.log("ho settato", threadId);
   await client.sendMessage(messageText);
   const { id: runId } = await client.run();
 
+  console.log("for personId", personId, "we use thread", threadId);
   const url = `${getBaseUrl()}/fetchRunRecursive`;
+  console.log(new Date().toUTCString());
   waitUntil(
     axios.post(url, {
       runId,
       messageText,
       personId,
+      threadId,
     })
   );
 

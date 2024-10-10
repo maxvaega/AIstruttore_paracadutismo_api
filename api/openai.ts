@@ -16,6 +16,10 @@ export class AssistantClient {
     this.threadId = threadId;
   }
 
+  public createThread() {
+    return this.client.beta.threads.create();
+  }
+
   public sendMessage(content: string) {
     return this.client.beta.threads.messages.create(this.threadId, {
       role: "user",

@@ -5,3 +5,8 @@ export interface FacebookMessage {
   to: { data: Array<{ username: string; id: string }> };
   message: string;
 }
+
+export interface PersonInfoDb {
+  updated_at: string;
+  thread_id: string;
+}

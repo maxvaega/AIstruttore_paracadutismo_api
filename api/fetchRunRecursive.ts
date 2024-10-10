@@ -9,10 +9,11 @@ export async function POST(request: Request) {
   const runId: string | undefined = body.runId;
   const messageText: string | undefined = body.messageText;
   const personId: string | undefined = body.personId;
+  const threadId: string | undefined = body.threadId;
 
-  if (!runId || !messageText || !personId) {
+  if (!runId || !messageText || !personId || !threadId) {
     return new Response(
-      `fetchRunRecursive => runId: ${runId}, messageText: ${messageText}, personId: ${personId}`,
+      `fetchRunRecursive => runId: ${runId}, messageText: ${messageText}, personId: ${personId}, threadId: ${threadId}`,
       {
         status: 401,
       }
@@ -20,7 +21,6 @@ export async function POST(request: Request) {
   }
 
   const client = new AssistantClient();
-  const threadId = process.env.OPENAI_THREAD_ID; // need to change this logic
   client.setup(threadId);
 
   await client.delay();
@@ -35,6 +35,7 @@ export async function POST(request: Request) {
         runId,
         messageText,
         personId,
+        threadId,
       })
     );
 
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
     const lastMessage = await client.popLastMessage(runId);
     const messageType = lastMessage.content[0].type;
     if (messageType === "text") {
-      const answer = lastMessage.content[0].text.value.slice(0, 2000);
+      const answer = lastMessage.content[0].text.value.slice(0, 1000);
       waitUntil(sendMessageToUser(personId, answer));
     } else {
       waitUntil(notifyError());
