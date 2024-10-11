@@ -24,20 +24,22 @@ export async function POST(request: Request) {
   client.setup(threadId);
 
   await client.delay();
+  await client.delay();
+  await client.delay();
   const response = await client.retrieveRun(runId);
   if (response.status === "in_progress" || response.status === "queued") {
     console.log("status is", response.status, " => fetch again :(");
     // call again
     const url = `${getBaseUrl()}/fetchRunRecursive`;
 
-    // waitUntil(
-    //   axios.post(url, {
-    //     runId,
-    //     messageText,
-    //     personId,
-    //     threadId,
-    //   })
-    // );
+    waitUntil(
+      axios.post(url, {
+        runId,
+        messageText,
+        personId,
+        threadId,
+      })
+    );
 
     return new Response("OK", { status: 200 });
   }
