@@ -91,6 +91,8 @@ async function handleIstagramObj(body: any) {
   });
 
   const resultList = await Promise.all(promises.map((p) => p()));
+  console.log("result list lenth", resultList.length);
+  console.log(resultList[0]);
   const { data } = resultList[0];
 
   const { data: dataMessage } = await fetchmessage(data.message_id);
