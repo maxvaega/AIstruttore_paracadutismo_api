@@ -30,14 +30,14 @@ export async function POST(request: Request) {
     // call again
     const url = `${getBaseUrl()}/fetchRunRecursive`;
 
-    waitUntil(
-      axios.post(url, {
-        runId,
-        messageText,
-        personId,
-        threadId,
-      })
-    );
+    // waitUntil(
+    //   axios.post(url, {
+    //     runId,
+    //     messageText,
+    //     personId,
+    //     threadId,
+    //   })
+    // );
 
     return new Response("OK", { status: 200 });
   }
@@ -45,6 +45,7 @@ export async function POST(request: Request) {
   const notifyError = () =>
     sendMessageToUser(personId, "C'è stato un errore, contatta il supporto");
 
+  console.log(threadId, "has", response.status);
   if (response.status !== "completed") {
     waitUntil(notifyError());
     return new Response(
