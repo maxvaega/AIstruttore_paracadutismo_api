@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     if (messageType === "text") {
       console.log("enter on if");
       const answer = lastMessage.content[0].text.value.slice(0, 1000);
-      console.log("answer is", answer);
+
       waitUntil(sendMessageToUser(personId, answer));
     } else {
       waitUntil(notifyError());
