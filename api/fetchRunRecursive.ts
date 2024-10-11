@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   // completed
   console.log(threadId, "has completed");
   try {
-    const lastMessage = await client.popLastMessage(runId);
+    // const lastMessage = await client.popLastMessage(runId);
     // const messageType = lastMessage.content[0].type;
     // console.log("text message is", lastMessage);
     // if (messageType === "text") {
