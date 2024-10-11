@@ -57,19 +57,19 @@ export async function POST(request: Request) {
   console.log(threadId, "has completed");
   try {
     const lastMessage = await client.popLastMessage(runId);
-    const messageType = lastMessage.content[0].type;
-    console.log("text message is", lastMessage);
-    if (messageType === "text") {
-      console.log("enter on if");
-      const answer = lastMessage.content[0].text.value.slice(0, 1000);
-      console.log("answer is", answer);
-      // waitUntil(sendMessageToUser(personId, answer));
-    } else {
-      // waitUntil(notifyError());
-      // throw new Error(
-      //   `runId: ${runId}, lastMessage was of type ${messageType}`
-      // );
-    }
+    // const messageType = lastMessage.content[0].type;
+    // console.log("text message is", lastMessage);
+    // if (messageType === "text") {
+    //   console.log("enter on if");
+    //   const answer = lastMessage.content[0].text.value.slice(0, 1000);
+    //   console.log("answer is", answer);
+    //   // waitUntil(sendMessageToUser(personId, answer));
+    // } else {
+    //   // waitUntil(notifyError());
+    //   // throw new Error(
+    //   //   `runId: ${runId}, lastMessage was of type ${messageType}`
+    //   // );
+    // }
   } catch (e) {
     // waitUntil(notifyError());
     // return new Response("error generic", { status: 400 });
