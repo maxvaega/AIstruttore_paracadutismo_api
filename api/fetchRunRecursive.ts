@@ -26,6 +26,7 @@ export async function POST(request: Request) {
   await client.delay();
   await client.delay();
   await client.delay();
+
   const response = await client.retrieveRun(runId);
   if (response.status === "in_progress" || response.status === "queued") {
     console.log("status is", response.status, " => fetch again :(");

@@ -90,6 +90,10 @@ async function handleIstagramObj(body: any) {
     });
   });
 
+  if (promises.length === 0) {
+    return Promise.resolve();
+  }
+
   const resultList = await Promise.all(promises.map((p) => p()));
   console.log("result list lenth", resultList.length);
   console.log(resultList[0]);
@@ -133,6 +137,8 @@ async function handleIstagramObj(body: any) {
       threadId,
     })
   );
+
+  return Promise.resolve();
 
   // try {
   //   promises = [];
