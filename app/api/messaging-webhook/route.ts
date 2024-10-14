@@ -1,16 +1,15 @@
 import { waitUntil } from "@vercel/functions";
-import type { VercelRequest } from "@vercel/node";
-import { fetchmessage, sendMessageToUser } from "./api.js";
-import { AssistantClient } from "./openai.js";
-import { getBaseUrl } from "./utils.js";
+import { fetchmessage, sendMessageToUser } from "../../../utils/api";
+import { AssistantClient } from "../../openai";
+import { getBaseUrl } from "../../../utils/utils";
 import axios from "axios";
 import { kv } from "@vercel/kv";
-import { PersonInfoDb } from "./types.js";
+import { PersonInfoDb } from "../../types";
 
 const client = new AssistantClient();
 
 // FB will call http://localhost:3000/api/messaging-webhook?hub.mode=subscribe&hub.challenge=123&hub.verify_token=abc
-export async function GET(request: VercelRequest) {
+export async function GET(request: Request) {
   const { searchParams } = new URL(request.url as string);
   const mode = searchParams.get("hub.mode");
   const token = searchParams.get("hub.verify_token");
@@ -51,8 +50,8 @@ async function handleIstagramObj(body: any) {
   const prefix = "Mi hai chiesto ";
   let promises: Array<() => ReturnType<typeof sendMessageToUser>> = [];
 
-  body.entry.forEach(function (entry) {
-    entry.messaging.forEach(function (webhookEvent) {
+  body.entry.forEach(function (entry: any) {
+    entry.messaging.forEach(function (webhookEvent: any) {
       // Discard uninteresting events
       if ("read" in webhookEvent) {
         console.log("Got a read event");

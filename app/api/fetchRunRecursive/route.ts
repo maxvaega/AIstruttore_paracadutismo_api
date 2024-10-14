@@ -1,8 +1,8 @@
-import { AssistantClient } from "./openai.js";
+import { AssistantClient } from "../../openai";
 import axios from "axios";
-import { getBaseUrl, removeMarkdown } from "./utils.js";
+import { getBaseUrl, removeMarkdown } from "../../../utils/utils";
 import { waitUntil } from "@vercel/functions";
-import { sendMessageToUser } from "./api.js";
+import { sendMessageToUser } from "../../../utils/api";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -61,6 +61,9 @@ export async function POST(request: Request) {
   console.log(threadId, "has completed");
   try {
     const lastMessage = await client.popLastMessage(runId);
+    if (typeof lastMessage === "undefined") {
+      throw new Error("fetched last lastmessage is undefined");
+    }
     const messageType = lastMessage.content[0].type;
     console.log("text message is", lastMessage);
     if (messageType === "text") {

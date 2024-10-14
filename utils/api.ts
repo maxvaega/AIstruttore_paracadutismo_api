@@ -1,6 +1,5 @@
-import "dotenv/config";
 import axios from "axios";
-import { FacebookMessage } from "./types.js";
+import { FacebookMessage } from "../app/types";
 
 const apiVersion = "v20.0";
 

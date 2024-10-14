@@ -1,10 +1,9 @@
-import "dotenv/config";
 import OpenAI from "openai";
 
 export class AssistantClient {
   private client: OpenAI;
-  private assistantId = process.env.OPENAI_ASSISTANT_ID;
-  private threadId: string;
+  private assistantId = process.env.OPENAI_ASSISTANT_ID || "";
+  private threadId: string = "";
 
   constructor() {
     this.client = new OpenAI({
