@@ -2,7 +2,11 @@ import { AssistantClient } from "../../openai";
 import axios from "axios";
 import { waitUntil } from "@vercel/functions";
 import { buildChunksMessage } from "@/utils/message";
-import { getBaseUrl, sendMessageToUser } from "@/utils/api";
+import {
+  getBaseUrl,
+  sendMessageToUser,
+  sendSequenceMessageToUser,
+} from "@/utils/api";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -68,9 +72,8 @@ export async function POST(request: Request) {
     console.log("text message is", lastMessage);
     if (messageType === "text") {
       console.log("enter on if");
-      const markdownAnswer = lastMessage.content[0].text.value.slice(0, 1000);
-      const answer = buildChunksMessage(lastMessage.content[0].text.value);
-      waitUntil(sendMessageToUser(personId, answer[0]));
+      const answers = buildChunksMessage(lastMessage.content[0].text.value);
+      waitUntil(sendSequenceMessageToUser(personId, answers));
     } else {
       waitUntil(notifyError());
       throw new Error(

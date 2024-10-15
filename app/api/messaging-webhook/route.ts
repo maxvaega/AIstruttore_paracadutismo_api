@@ -6,7 +6,12 @@ import axios from "axios";
 import { kv } from "@vercel/kv";
 import { OpenAiPollingbehavior, PersonInfoDb } from "../../types";
 import { buildChunksMessage } from "@/utils/message";
-import { fetchmessage, getBaseUrl, sendMessageToUser } from "@/utils/api";
+import {
+  fetchmessage,
+  getBaseUrl,
+  sendMessageToUser,
+  sendSequenceMessageToUser,
+} from "@/utils/api";
 
 const client = new AssistantClient();
 
@@ -125,13 +130,13 @@ async function handleIstagramObj(body: any) {
   client.setup(threadId);
 
   const pollingBehavior: OpenAiPollingbehavior = body.pollingBehavior;
-  console.log("####", pollingBehavior);
+
   if (pollingBehavior === "long-task") {
     const lastMessage = await client.processMessageAndWait(messageText);
     console.log("last message", lastMessage);
     if (lastMessage && lastMessage.content[0].type === "text") {
-      const answer = buildChunksMessage(lastMessage.content[0].text.value);
-      waitUntil(sendMessageToUser(personId, answer[0]));
+      const answers = buildChunksMessage(lastMessage.content[0].text.value);
+      waitUntil(sendSequenceMessageToUser(personId, answers));
     }
   } else if (pollingBehavior === "recursive") {
     await client.sendMessage(messageText);
