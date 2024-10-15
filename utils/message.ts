@@ -1,3 +1,5 @@
+import { MAX_CHARS_MESSAGE } from "@/app/const";
+
 function splitMessage(message: string, limit: number): string[] {
   const result: string[] = [];
   let currentPart = "";
@@ -21,7 +23,7 @@ function splitMessage(message: string, limit: number): string[] {
   return result;
 }
 
-export function removeMarkdown(text: string) {
+function removeMarkdown(text: string) {
   return (
     text
       // Rimuovi i link
@@ -44,4 +46,9 @@ export function removeMarkdown(text: string) {
       .replace(/【[^】]*】/g, "")
       .trim()
   );
+}
+
+export function buildChunksMessage(messageFromOpenAi: string): string[] {
+  const normalized = removeMarkdown(messageFromOpenAi);
+  return splitMessage(normalized, MAX_CHARS_MESSAGE);
 }

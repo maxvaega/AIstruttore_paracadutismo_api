@@ -1,9 +1,7 @@
 import { AssistantClient } from "../../openai";
 import axios from "axios";
-
 import { waitUntil } from "@vercel/functions";
-
-import { removeMarkdown } from "@/utils/message";
+import { buildChunksMessage } from "@/utils/message";
 import { getBaseUrl, sendMessageToUser } from "@/utils/api";
 
 export async function POST(request: Request) {
@@ -71,8 +69,8 @@ export async function POST(request: Request) {
     if (messageType === "text") {
       console.log("enter on if");
       const markdownAnswer = lastMessage.content[0].text.value.slice(0, 1000);
-      const normalizedAnswer = removeMarkdown(markdownAnswer);
-      waitUntil(sendMessageToUser(personId, normalizedAnswer));
+      const answer = buildChunksMessage(lastMessage.content[0].text.value);
+      waitUntil(sendMessageToUser(personId, answer[0]));
     } else {
       waitUntil(notifyError());
       throw new Error(
