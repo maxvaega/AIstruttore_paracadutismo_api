@@ -2,15 +2,22 @@
 import axios from "axios";
 import styles from "./page.module.css";
 import { ChangeEvent, useRef, useState } from "react";
+import { OpenAiPollingbehavior } from "./types";
 
 export default function Home() {
   const [personId, setPersonId] = useState<
     "1063423088051438" | "1591457695102340"
   >("1063423088051438");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [pollingBehavior, setPollingBehavior] =
+    useState<OpenAiPollingbehavior>("recursive");
 
   function handleChangePerson(e: ChangeEvent<HTMLInputElement>) {
     setPersonId(e.target.value as typeof personId);
+  }
+
+  function handleChangeBehavior(e: ChangeEvent<HTMLInputElement>) {
+    setPollingBehavior(e.target.value as OpenAiPollingbehavior);
   }
 
   function handleSubmit() {
@@ -19,7 +26,9 @@ export default function Home() {
       return;
     }
     axios
-      .get(`/api/simulate-send?personId=${personId}&messageText=${message}`)
+      .get(
+        `/api/simulate-send?personId=${personId}&messageText=${message}&pollingBehavior=${pollingBehavior}`
+      )
       .finally(() => {
         inputRef.current!.value = "";
       });
@@ -58,6 +67,38 @@ export default function Home() {
               checked={personId === "1591457695102340"}
             />
             <label htmlFor="dewey">Max</label>
+          </div>
+        </div>
+        <p>and behavior is</p>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "1rem",
+          }}
+        >
+          <div>
+            <input
+              type="radio"
+              id="recursive"
+              name="recursive"
+              value="recursive"
+              onChange={handleChangeBehavior}
+              checked={pollingBehavior === "recursive"}
+            />
+            <label htmlFor="recursive">Recursive</label>
+          </div>
+          or
+          <div>
+            <input
+              type="radio"
+              id="long-task"
+              name="long-task"
+              value="long-task"
+              onChange={handleChangeBehavior}
+              checked={pollingBehavior === "long-task"}
+            />
+            <label htmlFor="long-task">Long-Task</label>
           </div>
         </div>
 

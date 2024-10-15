@@ -10,6 +10,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url as string);
   const messageText = searchParams.get("messageText");
   const personId = searchParams.get("personId");
+  const pollingBehavior = searchParams.get("pollingBehavior") || "recursive";
 
   if (!personId) {
     return new Response(
@@ -40,6 +41,7 @@ export async function GET(request: Request) {
         ],
       },
     ],
+    pollingBehavior,
   });
   return new Response(`send: ${messageText}`);
 }

@@ -10,3 +10,5 @@ export interface PersonInfoDb {
   updated_at: string;
   thread_id: string;
 }
+
+export type OpenAiPollingbehavior = "recursive" | "long-task";
