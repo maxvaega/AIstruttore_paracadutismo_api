@@ -1,7 +1,7 @@
 import { waitUntil } from "@vercel/functions";
 import { fetchmessage, sendMessageToUser } from "../../../utils/api";
 import { AssistantClient } from "../../openai";
-import { getBaseUrl } from "../../../utils/utils";
+import { getBaseUrl, removeMarkdown } from "../../../utils/utils";
 import axios from "axios";
 import { kv } from "@vercel/kv";
 import { PersonInfoDb } from "../../types";
@@ -119,23 +119,32 @@ async function handleIstagramObj(body: any) {
     thread_id: threadId,
     updated_at: new Date().toUTCString(),
   });
+  console.log("updated thread", threadId);
 
   client.setup(threadId);
-  console.log("ho settato", threadId);
-  await client.sendMessage(messageText);
-  const { id: runId } = await client.run();
 
-  console.log("for personId", personId, "we use thread", threadId);
-  const url = `${getBaseUrl()}/fetchRunRecursive`;
-  console.log(new Date().toUTCString());
-  waitUntil(
-    axios.post(url, {
-      runId,
-      messageText,
-      personId,
-      threadId,
-    })
-  );
+  const lastMessage = await client.processMessageAndWait(messageText);
+  console.log("last message", lastMessage);
+  if (lastMessage && lastMessage.content[0].type === "text") {
+    const markdownAnswer = lastMessage.content[0].text.value.slice(0, 1000);
+    const normalizedAnswer = removeMarkdown(markdownAnswer);
+    await sendMessageToUser(personId, normalizedAnswer);
+  }
+
+  // await client.sendMessage(messageText);
+  // const { id: runId } = await client.run();
+
+  // console.log("for personId", personId, "we use thread", threadId);
+  // const url = `${getBaseUrl()}/fetchRunRecursive`;
+  // console.log(new Date().toUTCString());
+  // waitUntil(
+  //   axios.post(url, {
+  //     runId,
+  //     messageText,
+  //     personId,
+  //     threadId,
+  //   })
+  // );
 
   return Promise.resolve();
 
