@@ -4,7 +4,7 @@ import { AssistantClient } from "../../openai";
 import { getBaseUrl, removeMarkdown } from "../../../utils/utils";
 import axios from "axios";
 import { kv } from "@vercel/kv";
-import { PersonInfoDb } from "../../types";
+import { OpenAiPollingbehavior, PersonInfoDb } from "../../types";
 
 const client = new AssistantClient();
 
@@ -94,7 +94,6 @@ async function handleIstagramObj(body: any) {
   }
 
   const resultList = await Promise.all(promises.map((p) => p()));
-  console.log("result list lenth", resultList.length);
   console.log(resultList[0]);
   const { data } = resultList[0];
 
@@ -123,52 +122,34 @@ async function handleIstagramObj(body: any) {
 
   client.setup(threadId);
 
-  const lastMessage = await client.processMessageAndWait(messageText);
-  console.log("last message", lastMessage);
-  if (lastMessage && lastMessage.content[0].type === "text") {
-    const markdownAnswer = lastMessage.content[0].text.value.slice(0, 1000);
-    const normalizedAnswer = removeMarkdown(markdownAnswer);
-    await sendMessageToUser(personId, normalizedAnswer);
+  const pollingBehavior: OpenAiPollingbehavior = body.pollingBehavior;
+  console.log("####", pollingBehavior);
+  if (pollingBehavior === "long-task") {
+    const lastMessage = await client.processMessageAndWait(messageText);
+    console.log("last message", lastMessage);
+    if (lastMessage && lastMessage.content[0].type === "text") {
+      const markdownAnswer = lastMessage.content[0].text.value.slice(0, 1000);
+      const normalizedAnswer = removeMarkdown(markdownAnswer);
+      waitUntil(sendMessageToUser(personId, normalizedAnswer));
+    }
+  } else if (pollingBehavior === "recursive") {
+    await client.sendMessage(messageText);
+    const { id: runId } = await client.run();
+
+    console.log("for personId", personId, "we use thread", threadId);
+    const url = `${getBaseUrl()}/fetchRunRecursive`;
+    console.log(new Date().toUTCString());
+    waitUntil(
+      axios.post(url, {
+        runId,
+        messageText,
+        personId,
+        threadId,
+      })
+    );
   }
 
-  // await client.sendMessage(messageText);
-  // const { id: runId } = await client.run();
-
-  // console.log("for personId", personId, "we use thread", threadId);
-  // const url = `${getBaseUrl()}/fetchRunRecursive`;
-  // console.log(new Date().toUTCString());
-  // waitUntil(
-  //   axios.post(url, {
-  //     runId,
-  //     messageText,
-  //     personId,
-  //     threadId,
-  //   })
-  // );
-
   return Promise.resolve();
-
-  // try {
-  //   promises = [];
-  //   console.log("answer at", messateText);
-  //   const res = await client.processMessageAndWait(messateText);
-  //   res.content
-  //     .filter((c) => c.type === "text")
-  //     .filter((c) => !!c.text)
-  //     .forEach((content) => {
-  //       if (content.text) {
-  //         // this check is usefull but typescript at build time generate error
-  //         promises.push(() => {
-  //           const textFormatted = content.text.value.substring(0, 1000); // .substring(0, 20);
-  //           return sendMessageToUser(personId, textFormatted);
-  //         });
-  //       }
-  //     });
-  // } catch (e) {
-  //   console.error(e);
-  // }
-
-  // await Promise.all(promises.map((p) => p()));
 }
 
 async function verifyRequestSignature(_: Request) {
