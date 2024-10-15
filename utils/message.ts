@@ -1,7 +1,24 @@
-export function getBaseUrl() {
-  return process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}/api`
-    : `http://localhost:3000/api`;
+function splitMessage(message: string, limit: number): string[] {
+  const result: string[] = [];
+  let currentPart = "";
+
+  for (let i = 0; i < message.length; i++) {
+    const char = message[i];
+    currentPart += char;
+
+    // If the current part exceeds the limit and the character is '.' or ':'
+    if ((char === "." || char === ":") && currentPart.length >= limit) {
+      result.push(currentPart.trim());
+      currentPart = ""; // Start a new part
+    }
+  }
+
+  // Push the remaining part if not empty
+  if (currentPart.trim()) {
+    result.push(currentPart.trim());
+  }
+
+  return result;
 }
 
 export function removeMarkdown(text: string) {

@@ -1,8 +1,10 @@
 import { AssistantClient } from "../../openai";
 import axios from "axios";
-import { getBaseUrl, removeMarkdown } from "../../../utils/utils";
+
 import { waitUntil } from "@vercel/functions";
-import { sendMessageToUser } from "../../../utils/api";
+
+import { removeMarkdown } from "@/utils/message";
+import { getBaseUrl, sendMessageToUser } from "@/utils/api";
 
 export async function POST(request: Request) {
   const body = await request.json();

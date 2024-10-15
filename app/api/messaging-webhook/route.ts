@@ -1,10 +1,12 @@
 import { waitUntil } from "@vercel/functions";
-import { fetchmessage, sendMessageToUser } from "../../../utils/api";
+
 import { AssistantClient } from "../../openai";
-import { getBaseUrl, removeMarkdown } from "../../../utils/utils";
+
 import axios from "axios";
 import { kv } from "@vercel/kv";
 import { OpenAiPollingbehavior, PersonInfoDb } from "../../types";
+import { removeMarkdown } from "@/utils/message";
+import { fetchmessage, getBaseUrl, sendMessageToUser } from "@/utils/api";
 
 const client = new AssistantClient();
 

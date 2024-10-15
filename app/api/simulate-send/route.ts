@@ -1,5 +1,5 @@
+import { getBaseUrl } from "@/utils/api";
 import axios from "axios";
-import { getBaseUrl } from "../../../utils/utils";
 
 // example => http://localhost:3000/api/simulate-send?personId=1063423088051438&messageText=come%20si%20fa%20deriva
 // const idDiego = "1063423088051438";
